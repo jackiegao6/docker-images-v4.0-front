@@ -40,26 +40,21 @@ export const StrategyRuleWeight: React.FC<StrategyRuleWeightProps> = ({ refresh 
         const percentage = Math.min((completed / total) * 100, 100);
 
         return (
-            <div className="w-full max-w-md mb-6">
-                <div className="flex items-center mb-1">
-                    <span className="text-sm font-semibold text-white mr-2">抽奖阶梯 {index + 1}</span>
-                    <div className="flex-1 h-4 bg-gray-300 rounded-full relative overflow-hidden">
-                        <div
-                            className="h-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"
-                            style={{ width: `${percentage}%` }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-end pr-2">
-              <span className="text-xs font-bold text-black">
-                {completed > total ? total : completed}/{total}
-              </span>
-                        </div>
+            <div className="flex flex-col items-center w-48 p-4 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg hover:scale-105 transform transition-transform duration-300">
+                <div className="text-sm font-bold text-white mb-2">抽奖阶梯 {index + 1}</div>
+                <div className="w-full h-6 bg-gray-200 rounded-full overflow-hidden relative">
+                    <div
+                        className="h-6 rounded-full bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 transition-all duration-700"
+                        style={{ width: `${percentage}%` }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-bold text-black">{completed}/{total}</span>
                     </div>
                 </div>
                 {awards && awards.length > 0 && (
-                    <div className="ml-4 mt-1">
-                        <div className="text-xs text-gray-200 font-semibold mb-1">必中奖品范围：</div>
+                    <div className="mt-2 text-xs text-white text-center">
                         {awards.map((award, idx) => (
-                            <div key={award.awardId} className="text-xs text-white ml-2">
+                            <div key={award.awardId}>
                                 {idx + 1}. {award.awardTitle}
                             </div>
                         ))}
@@ -70,7 +65,7 @@ export const StrategyRuleWeight: React.FC<StrategyRuleWeightProps> = ({ refresh 
     };
 
     return (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-row flex-wrap justify-center gap-6 mt-6">
             {strategyRuleWeightVOList.map((ruleWeight, index) => (
                 <ProgressBar
                     key={index}
