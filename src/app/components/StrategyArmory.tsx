@@ -42,13 +42,14 @@ export const StrategyArmory: React.FC = () => {
 
     return (
         <div
-            className={`px-6 py-2 mb-8 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+            className={`mt-8 px-6 py-2 mb-8 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                 loading ? "bg-yellow-400 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-800"
             }`}
-            style={{ cursor: loading ? "not-allowed" : "pointer" }}
+            style={{cursor: loading ? "not-allowed" : "pointer"}}
             onClick={strategyArmoryHandle}
         >
             {loading ? "装配中..." : "装配抽奖「测试前点击预热数据」"}
         </div>
+
     );
 };
