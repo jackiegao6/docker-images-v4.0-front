@@ -1,72 +1,85 @@
-import {calendarSignRebate, isCalendarSignRebate} from "@/apis";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { calendarSignRebate, isCalendarSignRebate } from "@/apis";
 
-// @ts-ignore
-export function CalendarSign({handleRefresh}) {
+interface CalendarSignProps {
+    handleRefresh: () => void;
+}
 
-    const [sign, setSign] = useState(false);
+export const CalendarSign: React.FC<CalendarSignProps> = ({ handleRefresh }) => {
+    const [sign, setSign] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const isMounted = useRef(true);
 
-    const calendarSignRebateHandle = async () => {
-        if (sign){
-            window.alert("今日已签到！")
+    // 检查组件是否已卸载，防止异步更新报错
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
+    // 查询用户是否已签到
+    const checkSignStatus = async () => {
+        try {
+            const queryParams = new URLSearchParams(window.location.search);
+            const userId = String(queryParams.get("userId"));
+            const result = await isCalendarSignRebate(userId);
+            const { code, info, data }: { code: string; info: string; data: boolean } = await result.json();
+
+            if (code !== "0000") {
+                window.alert(`判断是否签到接口失败：code=${code} info=${info}`);
+                return;
+            }
+
+            if (isMounted.current) setSign(data);
+        } catch (error) {
+            console.error("查询签到状态异常：", error);
+        }
+    };
+
+    // 执行签到
+    const handleSign = async () => {
+        if (sign) {
+            window.alert("今日已签到！");
             return;
         }
-        const queryParams = new URLSearchParams(window.location.search);
-        const result = await calendarSignRebate(String(queryParams.get('userId')));
-        const {code, info}: { code: string; info: string; } = await result.json();
 
-        if (code != "0000" && code != "0003") {
-            window.alert("日历签到返利接口，接口调用失败 code:" + code + " info:" + info)
-            return;
+        if (loading) return; // 防止重复点击
+
+        try {
+            setLoading(true);
+            const queryParams = new URLSearchParams(window.location.search);
+            const userId = String(queryParams.get("userId"));
+            const result = await calendarSignRebate(userId);
+            const { code, info }: { code: string; info: string } = await result.json();
+
+            if (code !== "0000" && code !== "0003") {
+                window.alert(`日历签到返利接口失败：code=${code} info=${info}`);
+                return;
+            }
+
+            if (isMounted.current) setSign(true);
+
+            // 刷新父组件数据
+            handleRefresh();
+        } catch (error) {
+            console.error("签到异常：", error);
+        } finally {
+            if (isMounted.current) setLoading(false);
         }
-
-        setSign(true);
-
-        // 设置一个3秒后执行的定时器
-        const timer = setTimeout(() => {
-            handleRefresh()
-        }, 150);
-
-        // 清除定时器，以防组件在执行前被卸载
-        return () => clearTimeout(timer);
-    }
-
-    const isCalendarSignRebateHandle = async () => {
-
-        const queryParams = new URLSearchParams(window.location.search);
-        const result = await isCalendarSignRebate(String(queryParams.get('userId')));
-        const {code, info, data}: { code: string; info: string; data: boolean } = await result.json();
-
-        if (code != "0000") {
-            window.alert("判断是否签到接口，接口调用失败 code:" + code + " info:" + info)
-            return;
-        }
-
-        setSign(data);
-    }
-
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = (`0${currentDate.getMonth() + 1}`).slice(-2); // 月份是从0开始的
-    const day = (`0${currentDate.getDate()}`).slice(-2);
-
-    const formattedDate = `${year}-${month}-${day}`;
+    };
 
     useEffect(() => {
-        isCalendarSignRebateHandle().then(r => {
-        });
-    }, [])
+        checkSignStatus();
+    }, []);
 
     return (
-        <>
-            <div
-                className="px-6 py-2 mb-8 text-white bg-green-600 rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                style={{cursor: "pointer"}}
-                onClick={calendarSignRebateHandle}
-            >
-                {sign ? "今日已签到" : "点击签到「获得抽奖次数」"}
-            </div>
-        </>
-    )
-
-}
+        <div
+            className={`px-6 py-2 mb-8 rounded-full shadow-lg text-white ${
+                sign ? "bg-green-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-800 cursor-pointer"
+            }`}
+            onClick={handleSign}
+        >
+            {loading ? "签到中..." : sign ? "今日已签到" : "点击签到「获得抽奖次数」"}
+        </div>
+    );
+};

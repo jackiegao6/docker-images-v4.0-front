@@ -1,40 +1,57 @@
-import {queryUserActivityAccount} from "@/apis";
-import React, {useEffect, useState} from "react";
-import {UserActivityAccountVO} from "@/types/UserActivityAccountVO";
+import React, { useEffect, useState } from "react";
+import { queryUserActivityAccount } from "@/apis";
+import { UserActivityAccountVO } from "@/types/UserActivityAccountVO";
 
-// @ts-ignore
-export function ActivityAccount({refresh}) {
-    const [dayCount, setDayCount] = useState(0)
+interface ActivityAccountProps {
+    refresh: number;
+}
 
-    const queryUserActivityAccountHandle = async () => {
-        const queryParams = new URLSearchParams(window.location.search);
-        // 查询账户数据
-        const result = await queryUserActivityAccount(String(queryParams.get('userId')), Number(queryParams.get('activityId')));
-        const {code, info, data}: { code: string; info: string; data: UserActivityAccountVO } = await result.json();
+export const ActivityAccount: React.FC<ActivityAccountProps> = ({ refresh }) => {
+    const [dayCount, setDayCount] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
-        if (code != "0000") {
-            window.alert("查询活动账户额度，接口调用失败 code:" + code + " info:" + info)
-            return;
+    const fetchUserActivityAccount = async () => {
+        try {
+            setLoading(true);
+
+            const queryParams = new URLSearchParams(window.location.search);
+            const userId = queryParams.get("userId") || "";
+            const activityId = Number(queryParams.get("activityId") || 0);
+
+            if (!userId || !activityId) {
+                console.warn("缺少 userId 或 activityId 参数");
+                return;
+            }
+
+            const response = await queryUserActivityAccount(userId, activityId);
+            const { code, info, data }: { code: string; info: string; data: UserActivityAccountVO } = await response.json();
+
+            if (code !== "0000") {
+                window.alert(`查询活动账户额度失败：code=${code} info=${info}`);
+                return;
+            }
+
+            setDayCount(data.dayCountSurplus);
+        } catch (error) {
+            console.error("查询活动账户异常：", error);
+            window.alert("查询活动账户异常，请稍后重试");
+        } finally {
+            setLoading(false);
         }
-
-        // 日可抽奖额度
-        setDayCount(data.dayCountSurplus)
-    }
+    };
 
     useEffect(() => {
-        queryUserActivityAccountHandle().then(r => {
-        });
-    }, [refresh])
+        fetchUserActivityAccount();
+    }, [refresh]);
 
     return (
-        <>
-            <div
-                className="px-6 py-2 mb-8 text-white bg-yellow-500 rounded-full shadow-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                style={{cursor: "pointer"}}
-            >
-                今日可抽奖{dayCount}次
-            </div>
-        </>
-    )
-
-}
+        <div
+            className={`px-6 py-2 mb-8 rounded-full shadow-lg text-white ${
+                loading ? "bg-yellow-300 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
+            }`}
+            onClick={() => !loading && fetchUserActivityAccount()}
+        >
+            {loading ? "加载中..." : `今日可抽奖 ${dayCount} 次`}
+        </div>
+    );
+};

@@ -5,6 +5,8 @@ import {LuckyGridPage} from "@/app/pages/lucky/lucky-grid-page";
 import dynamic from "next/dynamic";
 import {useState} from "react";
 
+
+// dynamic 动态导入组件 避免一次性加载全部组件
 const StrategyArmoryButton = dynamic(async () => (await import("./components/StrategyArmory")).StrategyArmory)
 const StrategyRuleWeightButton = dynamic(async () => (await import("./components/StrategyRuleWeight")).StrategyRuleWeight)
 const MemberCardButton = dynamic(async () => (await import("./components/MemberCard")).MemberCard)
@@ -20,18 +22,15 @@ export default function Home() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-[#e7305e]"
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#9fabb9]"
              style={{backgroundImage: "url('/background.svg')"}}>
             {/* 头部文案 */}
-            <header className="text-7xl font-bold text-center text-gray-800 my-8" style={{color: "white"}}>
+            <header className="text-5xl font-bold text-center text-gray-800 my-8" style={{color: "white"}}>
                 大营销平台 - 抽奖展示
             </header>
 
             {/* 会员卡 */}
             <MemberCardButton allRefresh={refresh}/>
-
-            {/* 装配抽奖 */}
-            <StrategyArmoryButton/>
 
             {/* 商品 */}
             <SkuProductButton handleRefresh={handleRefresh}/>
@@ -54,11 +53,14 @@ export default function Home() {
                 <StrategyRuleWeightButton refresh={refresh}/>
             </div>
 
+            {/* 装配抽奖 */}
+            <StrategyArmoryButton/>
+
             {/* 底部文案 */}
-            <footer className="text-gray-600 text-center my-8" style={{color: "white"}}>
-                本项目为 星球「码农会锁」第8个实战项目 <a href='https://gaga.plus'
-                                                        target='_blank' color={"#0092ff"}>https://gaga.plus</a> @小傅哥
-            </footer>
+            {/*<footer className="text-gray-600 text-center my-8" style={{color: "white"}}>*/}
+            {/*    本项目为 星球「码农会锁」第8个实战项目 <a href='https://gaga.plus'*/}
+            {/*                                            target='_blank' color={"#0092ff"}>https://gaga.plus</a> @小傅哥*/}
+            {/*</footer>*/}
         </div>
     );
 }
