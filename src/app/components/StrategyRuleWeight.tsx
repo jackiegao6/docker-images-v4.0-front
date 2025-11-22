@@ -41,16 +41,18 @@ export const StrategyRuleWeight: React.FC<StrategyRuleWeightProps> = ({ refresh 
 
         return (
             <div className="flex flex-col items-center w-48 p-4 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-xl shadow-lg hover:scale-105 transform transition-transform duration-300">
-                <div className="text-sm font-bold text-white mb-2">抽奖阶梯 {index + 1}</div>
+                <div className="text-sm font-bold text-white mb-2">幸运值阶梯 {index + 1}</div>
                 <div className="w-full h-6 bg-gray-200 rounded-full overflow-hidden relative">
                     <div
-                        className="h-6 rounded-full bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 transition-all duration-700"
+                        className="h-6 rounded-full bg-gradient-to-r from-yellow-400 via-red-300 to-red-700 transition-all duration-700"
                         style={{ width: `${percentage}%` }}
                     />
+
                     <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-xs font-bold text-black">{completed}/{total}</span>
                     </div>
                 </div>
+
                 {awards && awards.length > 0 && (
                     <div className="mt-2 text-xs text-white text-center">
                         {awards.map((award, idx) => (

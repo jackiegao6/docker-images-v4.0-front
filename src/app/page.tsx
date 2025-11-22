@@ -25,28 +25,28 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#9fabb9]"
              style={{backgroundImage: "url('/background.svg')"}}>
             {/* 头部文案 */}
-            <header className="text-5xl font-bold text-center text-gray-800 my-8" style={{color: "white"}}>
-                大营销平台 - 抽奖展示
+            <header className="text-6xl font-bold text-center my-8 text-white">
+                🏆超级大奖福利
+                <span className="text-yellow-300">限量抽</span>
+                🎉
             </header>
-
-            {/* 会员卡 */}
-            <MemberCardButton allRefresh={refresh}/>
 
             {/* 商品 */}
             <SkuProductButton handleRefresh={handleRefresh}/>
 
-            {/* 中间的两个div元素 */}
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-                <div className="w-full md:w-1/2 p-6 bg-white shadow-lg rounded-lg">
-                    <div className="text-gray-700">
-                        <LuckyWheelPage handleRefresh={handleRefresh}/>
-                    </div>
+            {/* 转盘组件 + 会员卡 */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8"> {/* flex布局*/}
+
+                {/* 转盘组件 */}
+                <div className="w-full md:w-1/2 p-6 bg-red shadow-lg rounded-lg">
+                    <LuckyGridPage handleRefresh={handleRefresh} />
                 </div>
-                <div className="w-full md:w-1/2 p-6 bg-white shadow-lg rounded-lg">
-                    <div className="text-gray-700">
-                        <LuckyGridPage handleRefresh={handleRefresh}/>
-                    </div>
+
+                {/* 会员卡 */}
+                <div className="w-full md:w-1/2">
+                    <MemberCardButton allRefresh={refresh} />
                 </div>
+
             </div>
 
             <div className="flex items-center space-x-4">

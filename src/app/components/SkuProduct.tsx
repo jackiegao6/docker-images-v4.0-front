@@ -72,7 +72,7 @@ export const SkuProduct: React.FC<SkuProductProps> = ({ handleRefresh }) => {
             <div className="flex flex-wrap justify-center gap-4">
                 {skuList.map((skuProduct, index) => (
                     <div key={skuProduct.sku || index}>
-                        <div className="max-w-xs rounded overflow-hidden shadow-lg p-4 bg-gradient-to-r from-blue-400 to-green-500 transform hover:scale-105 transition-transform duration-300">
+                        <div className="max-w-xs rounded overflow-hidden shadow-lg p-4 bg-gradient-to-r from-blue-500 to-red-500 transform hover:scale-105 transition-transform duration-300">
                             <div className="px-4 py-2">
                                 <div className="font-bold text-2xl mb-2 text-center text-white">
                                     {skuProduct.activityCount.dayCount}次抽奖

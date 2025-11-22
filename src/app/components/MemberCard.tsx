@@ -12,6 +12,7 @@ interface MemberCardProps {
 }
 
 export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
+    const [now, setNow] = useState<string>("");
     const [dayCount, setDayCount] = useState<number>(0);
     const [creditAmount, setCreditAmount] = useState<number>(0);
     const [sign, setSign] = useState<boolean>(false);
@@ -25,6 +26,20 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
             isMounted.current = false;
         };
     }, []);
+
+    useEffect(() => {
+        const updateTime = () => {
+            const d = new Date();
+            const formatted = ` ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+            setNow(formatted);
+        };
+
+        updateTime(); // 初始化
+        const timer = setInterval(updateTime, 1000); // 每秒更新时间
+
+        return () => clearInterval(timer);
+    }, []);
+
 
     const getUserId = useCallback(() => {
         const id = new URLSearchParams(window.location.search).get("userId");
@@ -91,6 +106,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
                 window.alert(`签到失败 code:${code} info:${info}`);
                 return;
             }
+            handleRefresh();
             if (isMounted.current) setSign(true);
             handleRefresh();
         } catch (error) {
@@ -112,54 +128,71 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
     }, [handleRefresh, allRefresh]);
 
     const currentDate = new Date();
-    const formattedDate = `${currentDate.getFullYear()}年${('0' + (currentDate.getMonth() + 1)).slice(-2)}月${('0' + currentDate.getDate()).slice(-2)}日`;
+    // const formattedDate = `${currentDate.getFullYear()}年${('0' + (currentDate.getMonth() + 1)).slice(-2)}月${('0' + currentDate.getDate()).slice(-2)}日`;
 
     return (
-        <div className="relative max-w-sm mx-auto bg-gradient-to-r from-blue-600 to-teal-600 rounded-xl shadow-xl overflow-hidden md:max-w-2xl mb-10">
+
+        <div
+            className="relative max-w-sm mx-auto bg-gradient-to-r from-blue-400 to-red-300 rounded-xl shadow-xl overflow-hidden md:max-w-2xl mb-5">
             <div className="md:flex">
                 <div className="p-8 flex-1">
                     <a
                         href="#"
                         className="block mt-1 text-2xl leading-tight font-semibold text-white hover:text-gray-300 transition duration-300 ease-in-out"
                     >
-                        营销会员卡
+                        抽奖账户：
                     </a>
+
                     <div className="mt-4">
                         <p className="text-lg text-gray-100 flex items-center">
-                            <span className="material-icons mr-2">💲</span>
-                            我的积分：
-                            <span className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">
-                {creditAmount}
-              </span>
+                            <span className="material-icons mr-1">👤</span>
+                            用户id：
+                            <span
+                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{userId}</span>
                         </p>
-                        <p className="text-lg text-gray-100 flex items-center mt-2">
-                            <span className="material-icons mr-2">🥃</span>
+
+                        <p className="text-lg text-gray-100 flex items-center">
+                            <span className="material-icons mr-2">💲</span>
+                            账户积分：
+                            <span
+                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{creditAmount}</span>
+                        </p>
+
+                        <p className="text-lg text-gray-100 flex items-center">
+                            <span className="material-icons mr-1">🥃</span>
                             抽奖次数：
-                            <span className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">
-                {dayCount}
-              </span>
+                            <span
+                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{dayCount}</span>
+                        </p>
+
+                        <p className="text-lg text-gray-100 flex items-center">
+                            <span className="material-icons mr-1">⏱️</span>
+                            当前时间：
+                            <span
+                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{now}</span>
                         </p>
                     </div>
                 </div>
-                <div className="p-8 flex items-center justify-between">
-                    <button
-                        onClick={handleSign}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
-                    >
-                        {sign ? "已签" : "签到"}
-                    </button>
-                    <div className="text-gray-100 text-md font-semibold ml-4">{formattedDate}</div>
-                </div>
             </div>
-            <button
-                onClick={handleRefresh}
-                className="absolute bottom-4 right-4 bg-white hover:bg-gray-200 text-black font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
-            >
-                刷新⌛️
-            </button>
-            <div className="absolute top-4 right-4 bg-white bg-opacity-20 text-white font-bold py-1 px-3 rounded-full shadow-md">
-                id: {userId}
+
+            {/* ⭐ 底部按钮区域 */}
+            <div className="flex justify-center gap-4 pb-6">
+                <button
+                    onClick={handleSign}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
+                >
+                    {sign ? "已签" : "签到"}
+                </button>
+
+                <button
+                    onClick={handleRefresh}
+                    className="bg-white hover:bg-gray-200 text-black font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
+                >
+                    刷新⌛️
+                </button>
             </div>
         </div>
+
+
     );
 };
