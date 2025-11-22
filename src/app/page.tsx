@@ -23,7 +23,7 @@ export default function Home() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-[#9fabb9]"
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#1472c7]"
              style={{backgroundImage: "url('/background.svg')"}}>
             {/* 头部文案 */}
             <header className="text-6xl font-bold text-center my-8 text-white">
