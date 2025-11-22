@@ -17,7 +17,7 @@ export default function RaffleMarquee({ activityId }: { activityId: number }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/query1HRaffleUser?activityId=${activityId}`);
+                const res = await fetch(`/api/queryRecentRaffleUsers?activityId=${activityId}`);
                 const data = await res.json();
                 if (data.code === "0000") {
                     setList(data.data || []);
