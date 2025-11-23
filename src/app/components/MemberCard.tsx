@@ -138,7 +138,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
                 <div className="p-8 flex-1">
                     <a
                         href="#"
-                        className="block mt-1 text-2xl leading-tight font-semibold text-white hover:text-gray-300 transition duration-300 ease-in-out"
+                        className="block mt-1 text-2xl leading-tight font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300 ease-in-out"
                     >
                         抽奖账户：
                     </a>
@@ -148,28 +148,28 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
                             <span className="material-icons mr-1">👤</span>
                             用户id：
                             <span
-                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{userId}</span>
+                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{userId}</span>
                         </p>
 
                         <p className="text-lg text-gray-100 flex items-center">
-                            <span className="material-icons mr-2">💲</span>
+                            <span className="material-icons mr-1">💰</span>
                             账户积分：
                             <span
-                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{creditAmount}</span>
+                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{creditAmount}</span>
                         </p>
 
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">🥃</span>
                             抽奖次数：
                             <span
-                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{dayCount}</span>
+                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{dayCount}</span>
                         </p>
 
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">⏱️</span>
                             当前时间：
                             <span
-                                className="font-bold text-gray-100 ml-1 bg-white bg-opacity-20 rounded-full px-2 py-1">{now}</span>
+                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{now}</span>
                         </p>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
                     onClick={handleSign}
                     className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
                 >
-                    {sign ? "已签" : "签到"}
+                    📅{sign ? "已签" : "签到"}
                 </button>
 
                 <button

@@ -14,7 +14,7 @@ export const StrategyArmory: React.FC = () => {
         const activityId = getActivityId();
         if (!activityId) {
             window.alert(
-                "请在请求地址中，配置 activityId 值，如：http://big-market.gaga.plus/?userId=xiaofuge&activityId=100301"
+                "确认访问地址正确如：http://182.61.31.173/?userId=gzc&activityId=100401"
             );
             return;
         }
@@ -31,7 +31,7 @@ export const StrategyArmory: React.FC = () => {
                 return;
             }
 
-            window.alert("装配完成，开始体验吧!");
+            window.alert("装配完成啦!");
         } catch (error) {
             console.error("策略装配异常:", error);
             window.alert("策略装配异常，请查看控制台日志！");
@@ -48,7 +48,7 @@ export const StrategyArmory: React.FC = () => {
             style={{cursor: loading ? "not-allowed" : "pointer"}}
             onClick={strategyArmoryHandle}
         >
-            {loading ? "装配中..." : "装配抽奖「测试前点击预热数据」"}
+            {loading ? "装配中..." : "🔥装配抽奖「抽奖前点击数据预热」"}
         </div>
 
     );
