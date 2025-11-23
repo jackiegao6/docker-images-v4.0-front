@@ -6,6 +6,7 @@ import {
     queryUserCreditAccount,
 } from "@/apis";
 import { UserActivityAccountVO } from "@/types/UserActivityAccountVO";
+import {number} from "prop-types";
 
 interface MemberCardProps {
     allRefresh?: number;
@@ -17,6 +18,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
     const [creditAmount, setCreditAmount] = useState<number>(0);
     const [sign, setSign] = useState<boolean>(false);
     const [userId, setUserId] = useState<string>("");
+    const [activityId, setActivityId] = useState<string>("100401");
 
     const refreshCount = useRef(0);
     const isMounted = useRef(true);
@@ -44,6 +46,12 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
     const getUserId = useCallback(() => {
         const id = new URLSearchParams(window.location.search).get("userId");
         if (id) setUserId(id);
+        return id || "";
+    }, []);
+
+    const getActivityId = useCallback(() => {
+        const id = new URLSearchParams(window.location.search).get("activityId");
+        if (id) setActivityId(id);
         return id || "";
     }, []);
 
@@ -97,10 +105,11 @@ export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
         }
 
         const uid = getUserId();
+        const activityId = getActivityId();
         if (!uid) return;
 
         try {
-            const result = await calendarSignRebate(uid);
+            const result = await calendarSignRebate(uid, Number(activityId));
             const { code, info }: { code: string; info: string } = await result.json();
             if (code !== "0000" && code !== "0003") {
                 window.alert(`签到失败 code:${code} info:${info}`);
