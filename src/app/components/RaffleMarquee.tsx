@@ -11,6 +11,20 @@ interface RaffleUser {
 // 请求地址
 const apiHostUrl = process.env.API_HOST_URL ? process.env.API_HOST_URL : "https://console-mock.apipost.cn/mock/6afa907d-6678-45e2-b867-032a11090abd";
 
+function formatTimeAgo(timeString: string) {
+    const date = new Date(timeString);
+    const now = new Date();
+
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+
+    if (diffSec < 60) return "刚刚";
+    if (diffMin < 60) return `${diffMin} 分钟前`;
+    return `${diffHour} 小时前`;
+}
+
 
 export default function RaffleMarquee({ activityId }: { activityId: number }) {
 
@@ -49,6 +63,8 @@ export default function RaffleMarquee({ activityId }: { activityId: number }) {
                         className="px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl shadow-md text-white text-sm flex items-center gap-2"
                     >
                         <span className="font-bold">{item.userId}</span>
+                        <span className="opacity-70">在</span>
+                        <span className="opacity-70">{formatTimeAgo(item.awardTime)}</span>
                         <span className="opacity-70">抽中了</span>
                         <span className="font-semibold text-yellow-300">{item.awardTitle}</span>
                     </div>
