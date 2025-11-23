@@ -8,6 +8,10 @@ interface RaffleUser {
     awardTime: string; // 后端 Date -> 前端 string
 }
 
+// 请求地址
+const apiHostUrl = process.env.API_HOST_URL ? process.env.API_HOST_URL : "https://console-mock.apipost.cn/mock/6afa907d-6678-45e2-b867-032a11090abd";
+
+
 export default function RaffleMarquee({ activityId }: { activityId: number }) {
 
     const [list, setList] = useState<RaffleUser[]>([]);
@@ -17,7 +21,7 @@ export default function RaffleMarquee({ activityId }: { activityId: number }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/queryRecentRaffleUsers?activityId=${activityId}`);
+                const res = await fetch(`${apiHostUrl}/api/v1/raffle/activity/queryRecentRaffleUsers?activityId=${activityId}`);
                 const data = await res.json();
                 if (data.code === "0000") {
                     setList(data.data || []);
@@ -28,7 +32,7 @@ export default function RaffleMarquee({ activityId }: { activityId: number }) {
         };
 
         fetchData();
-        const timer = setInterval(fetchData, 5000); // 自动刷新
+        const timer = setInterval(fetchData, 30000); // 30s自动刷新
         return () => clearInterval(timer);
     }, [activityId]);
 
