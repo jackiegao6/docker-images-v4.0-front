@@ -96,17 +96,13 @@ export const queryUserActivityAccount = (userId?: string, activityId?: number) =
  * 日历签到返利接口
  * @param userId
  */
-export const calendarSignRebate = (userId?: string, activityId?: number) => {
+export const calendarSignRebate = (userId?: string) => {
     try {
-        return fetch(`${apiHostUrl}/api/v1/raffle/activity/calendar_sign_rebate`, {
+        return fetch(`${apiHostUrl}/api/v1/raffle/activity/calendar_sign_rebate?userId=${userId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify({
-                userId: userId,
-                activityId: activityId
-            })
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         })
     } catch (error) {
         return fetch("{\n" +

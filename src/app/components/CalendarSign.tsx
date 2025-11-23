@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { calendarSignRebate, isCalendarSignRebate } from "@/apis";
-import {number} from "prop-types";
 
 interface CalendarSignProps {
     handleRefresh: () => void;
@@ -50,8 +49,7 @@ export const CalendarSign: React.FC<CalendarSignProps> = ({ handleRefresh }) => 
             setLoading(true);
             const queryParams = new URLSearchParams(window.location.search);
             const userId = String(queryParams.get("userId"));
-            const activityId = Number(queryParams.get("activityId"))
-            const result = await calendarSignRebate(userId, activityId);
+            const result = await calendarSignRebate(userId);
             const { code, info }: { code: string; info: string } = await result.json();
 
             if (code !== "0000" && code !== "0003") {
