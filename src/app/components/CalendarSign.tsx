@@ -57,7 +57,10 @@ export const CalendarSign: React.FC<CalendarSignProps> = ({ handleRefresh }) => 
                 return;
             }
 
-            if (isMounted.current) setSign(true);
+            if (isMounted.current) {
+                setSign(true);
+                window.alert("🎉签到成功！")
+            }
 
             // 刷新父组件数据
             handleRefresh();
