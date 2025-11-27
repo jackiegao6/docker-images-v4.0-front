@@ -82,7 +82,7 @@ export function LuckyGridPage({ handleRefresh }: LuckyGridPageProps) {
                             : `/raffle-award-${getImageSuffix(pos.index)}-lock.png`,
                         width: "100%",
                         height: "100%",
-                        defaultImg: "/raffle-award.png" // 假如库支持
+                        activeSrc: "/raffle-award.png" // 假如库支持
                     }]
                 };
             });
