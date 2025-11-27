@@ -55,7 +55,7 @@ export const SkuProduct: React.FC<SkuProductProps> = ({ handleRefresh }) => {
                 // 延迟刷新
                 setTimeout(() => {
                     handleRefresh();
-                }, 350);
+                }, 300);
             } catch (error) {
                 console.error("兑换异常：", error);
             }
