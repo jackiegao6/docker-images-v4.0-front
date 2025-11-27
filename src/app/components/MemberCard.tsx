@@ -1,198 +1,178 @@
+'use client'; // 👈 必须添加这一行，标记为客户端组件
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation"; // 👈 引入 Next.js 专用 Hook
 import {
     calendarSignRebate,
     isCalendarSignRebate,
     queryUserActivityAccount,
     queryUserCreditAccount,
 } from "@/apis";
-import { UserActivityAccountVO } from "@/types/UserActivityAccountVO";
+
+// ... Clock 组件保持不变 ...
+const Clock: React.FC = React.memo(() => {
+    const [now, setNow] = useState<string>("");
+    useEffect(() => {
+        // ... 保持原有逻辑
+        const updateTime = () => {
+            const d = new Date();
+            setNow(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`);
+        };
+        updateTime();
+        const timer = setInterval(updateTime, 1000);
+        return () => clearInterval(timer);
+    }, []);
+    return <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{now}</span>;
+});
 
 interface MemberCardProps {
     allRefresh?: number;
 }
 
 export const MemberCard: React.FC<MemberCardProps> = ({ allRefresh = 0 }) => {
-    const [now, setNow] = useState<string>("");
+    // 1. 获取 URL 参数 (Next.js 方式，SSR 安全)
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("userId") || "";
+    const activityId = Number(searchParams.get("activityId")) || 0;
+
+    // 状态定义
     const [dayCount, setDayCount] = useState<number>(0);
     const [creditAmount, setCreditAmount] = useState<number>(0);
-    const [sign, setSign] = useState<boolean>(false);
-    const [userId, setUserId] = useState<string>("");
+    const [isSigned, setIsSigned] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const refreshCount = useRef(0);
     const isMounted = useRef(true);
 
     useEffect(() => {
-        return () => {
-            isMounted.current = false;
-        };
+        isMounted.current = true;
+        return () => { isMounted.current = false; };
     }, []);
 
-    useEffect(() => {
-        const updateTime = () => {
-            const d = new Date();
-            const formatted = ` ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-            setNow(formatted);
-        };
+    // ----------------------------------------------------------------------
+    // 数据获取逻辑
+    // ----------------------------------------------------------------------
+    const fetchData = useCallback(async () => {
+        // 如果没有 userId，暂不请求 (避免无效调用)
+        if (!userId) return;
 
-        updateTime(); // 初始化
-        const timer = setInterval(updateTime, 1000); // 每秒更新时间
-
-        return () => clearInterval(timer);
-    }, []);
-
-
-    const getUserId = useCallback(() => {
-        const id = new URLSearchParams(window.location.search).get("userId");
-        if (id) setUserId(id);
-        return id || "";
-    }, []);
-
-    const fetchActivityAccount = useCallback(async (uid: string) => {
         try {
-            const activityId = Number(new URLSearchParams(window.location.search).get("activityId"));
-            const result = await queryUserActivityAccount(uid, activityId);
-            const { code, info, data }: { code: string; info: string; data: UserActivityAccountVO } = await result.json();
-            if (code !== "0000") {
-                window.alert(`查询活动账户失败 code:${code} info:${info}`);
-                return;
-            }
-            if (isMounted.current) setDayCount(data.dayCountSurplus);
-        } catch (error) {
-            console.error("查询活动账户异常：", error);
-        }
-    }, []);
+            const [accountRes, creditRes, signRes] = await Promise.all([
+                queryUserActivityAccount(userId, activityId),
+                queryUserCreditAccount(userId),
+                isCalendarSignRebate(userId)
+            ]);
 
-    const fetchCreditAccount = useCallback(async (uid: string) => {
-        try {
-            const result = await queryUserCreditAccount(uid);
-            const { code, info, data }: { code: string; info: string; data: number } = await result.json();
-            if (code !== "0000") {
-                window.alert(`查询积分账户失败 code:${code} info:${info}`);
-                return;
-            }
-            if (isMounted.current) setCreditAmount(data);
-        } catch (error) {
-            console.error("查询积分账户异常：", error);
-        }
-    }, []);
+            // ... 解析 JSON ...
+            const accountData = await accountRes.json();
+            const creditData = await creditRes.json();
+            const signData = await signRes.json();
 
-    const fetchSignStatus = useCallback(async (uid: string) => {
-        try {
-            const result = await isCalendarSignRebate(uid);
-            const { code, info, data }: { code: string; info: string; data: boolean } = await result.json();
-            if (code !== "0000") {
-                window.alert(`查询签到状态失败 code:${code} info:${info}`);
-                return;
-            }
-            if (isMounted.current) setSign(data);
-        } catch (error) {
-            console.error("查询签到状态异常：", error);
-        }
-    }, []);
+            if (!isMounted.current) return;
 
+            if (accountData.code === "0000") setDayCount(accountData.data.dayCountSurplus);
+            if (creditData.code === "0000") setCreditAmount(creditData.data);
+            if (signData.code === "0000") setIsSigned(signData.data);
+
+        } catch (error) {
+            console.error("数据加载异常:", error);
+        }
+    }, [userId, activityId]);
+
+    // ----------------------------------------------------------------------
+    // 签到逻辑
+    // ----------------------------------------------------------------------
     const handleSign = useCallback(async () => {
-        if (sign) {
+        if (isSigned) {
             window.alert("今日已签到！");
             return;
         }
+        if (!userId) return;
 
-        const uid = getUserId();
-        if (!uid) return;
-
+        setLoading(true);
         try {
-            const result = await calendarSignRebate(uid);
-            const { code, info }: { code: string; info: string } = await result.json();
-            if (code !== "0000" && code !== "0003") {
-                window.alert(`签到失败 code:${code} info:${info}`);
-                return;
+            const result = await calendarSignRebate(userId);
+            const { code, info } = await result.json();
+
+            if (!isMounted.current) return;
+
+            if (code === "0000" || code === "0003") {
+                setIsSigned(true);
+                window.alert("签到成功！");
+                fetchData(); // 刷新数据
+            } else {
+                window.alert(`签到失败: ${info}`);
             }
-            handleRefresh();
-            if (isMounted.current) setSign(true);
-            handleRefresh();
         } catch (error) {
-            console.error("签到异常：", error);
+            console.error("签到异常:", error);
+            window.alert("网络异常");
+        } finally {
+            if (isMounted.current) setLoading(false);
         }
-    }, [sign]);
+    }, [isSigned, userId, fetchData]);
 
-    const handleRefresh = useCallback(() => {
-        refreshCount.current += 1;
-        const uid = getUserId();
-        if (!uid) return;
-        fetchActivityAccount(uid);
-        fetchCreditAccount(uid);
-        fetchSignStatus(uid);
-    }, [fetchActivityAccount, fetchCreditAccount, fetchSignStatus, getUserId]);
-
+    // 监听刷新
     useEffect(() => {
-        handleRefresh();
-    }, [handleRefresh, allRefresh]);
+        fetchData();
+    }, [fetchData, allRefresh]);
 
-    const currentDate = new Date();
-    // const formattedDate = `${currentDate.getFullYear()}年${('0' + (currentDate.getMonth() + 1)).slice(-2)}月${('0' + currentDate.getDate()).slice(-2)}日`;
-
+    // 渲染部分保持不变 ...
     return (
-
-        <div
-            className="relative max-w-sm mx-auto bg-gradient-to-r from-blue-400 to-red-300 rounded-xl shadow-xl overflow-hidden md:max-w-2xl mb-5">
+        <div className="relative max-w-sm mx-auto bg-gradient-to-r from-blue-400 to-red-300 rounded-xl shadow-xl overflow-hidden md:max-w-2xl mb-5">
             <div className="md:flex">
                 <div className="p-8 flex-1">
-                    <a
-                        href="#"
-                        className="block mt-1 text-2xl leading-tight font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300 ease-in-out"
-                    >
-                        抽奖账户：
-                    </a>
+                    <div className="block mt-1 text-2xl leading-tight font-semibold text-yellow-400 hover:text-yellow-300 transition duration-300 ease-in-out">
+                        抽奖账户
+                    </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 space-y-2">
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">👤</span>
-                            用户id：
-                            <span
-                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{userId}</span>
+                            用户ID：
+                            <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1 truncate max-w-[150px]">
+                                {userId || "未获取"}
+                            </span>
                         </p>
-
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">💰</span>
                             账户积分：
-                            <span
-                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{creditAmount}</span>
+                            <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">
+                                {creditAmount}
+                            </span>
                         </p>
-
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">🥃</span>
                             抽奖次数：
-                            <span
-                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{dayCount}</span>
+                            <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">
+                                {dayCount}
+                            </span>
                         </p>
-
                         <p className="text-lg text-gray-100 flex items-center">
                             <span className="material-icons mr-1">⏱️</span>
                             当前时间：
-                            <span
-                                className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{now}</span>
+                            <Clock />
                         </p>
                     </div>
                 </div>
             </div>
-
-            {/* ⭐ 底部按钮区域 */}
             <div className="flex justify-center gap-4 pb-6">
                 <button
                     onClick={handleSign}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
+                    disabled={loading || isSigned}
+                    className={`${
+                        isSigned ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'
+                    } text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out flex items-center`}
                 >
-                    📅{sign ? "已签" : "签到"}
+                    {loading ? "处理中..." : (isSigned ? "📅 已签到" : "📅 签到")}
                 </button>
 
                 <button
-                    onClick={handleRefresh}
-                    className="bg-white hover:bg-gray-200 text-black font-bold py-2 px-4 rounded-full shadow-md transition duration-300 ease-in-out"
+                    onClick={() => fetchData()}
+                    disabled={loading}
+                    className="bg-white hover:bg-gray-200 text-black font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out"
                 >
-                    刷新⌛️
+                    刷新 ⌛️
                 </button>
             </div>
         </div>
-
-
     );
 };
