@@ -1,18 +1,17 @@
 "use client";
 
-import {LuckyWheelPage} from "@/app/pages/lucky/lucky-wheel-page";
 import {LuckyGridPage} from "@/app/pages/lucky/lucky-grid-page";
 import dynamic from "next/dynamic";
 import {useState} from "react";
 import RaffleMarquee from "@/app/components/RaffleMarquee";
 
-
-// dynamic 动态导入组件 避免一次性加载全部组件
+// 1. 引入新组件 (使用 dynamic 动态加载)
 const StrategyArmoryButton = dynamic(async () => (await import("./components/StrategyArmory")).StrategyArmory)
 const StrategyRuleWeightButton = dynamic(async () => (await import("./components/StrategyRuleWeight")).StrategyRuleWeight)
 const MemberCardButton = dynamic(async () => (await import("./components/MemberCard")).MemberCard)
 const SkuProductButton = dynamic(async () => (await import("./components/SkuProduct")).SkuProduct)
-
+// 👇 新增这一行
+const DrawTenButton = dynamic(async () => (await import("./components/DrawTenComponent")).DrawTenComponent)
 
 export default function Home() {
 
@@ -25,6 +24,7 @@ export default function Home() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#1472c7]"
              style={{backgroundImage: "url('/background.svg')"}}>
+
             {/* 头部文案 */}
             <header className="text-6xl font-bold text-center my-8 text-white">
                 🏆超级大奖福利
@@ -32,38 +32,45 @@ export default function Home() {
                 🎉
             </header>
 
-            {/* 商品 */}
+            {/* 商品兑换列表 */}
             <SkuProductButton handleRefresh={handleRefresh}/>
 
-            {/* 转盘组件 + 会员卡 */}
-            <div className="flex flex-col md:flex-row gap-4 mb-8"> {/* flex布局*/}
-
-                {/* 转盘组件 */}
-                <div className="w-full md:w-1/2 p-6 bg-red shadow-lg rounded-lg">
+            {/* 中间核心区域：转盘 + 会员卡 */}
+            <div className="flex flex-col md:flex-row gap-4 mb-4 w-full max-w-3xl px-4">
+                {/* 左侧：九宫格转盘 */}
+                <div className="w-full md:w-1/2 p-6 bg-white/10 backdrop-blur-md shadow-xl rounded-2xl flex justify-center border border-white/20">
                     <LuckyGridPage handleRefresh={handleRefresh}/>
                 </div>
 
-                {/* 会员卡 */}
+                {/* 右侧：会员信息卡 */}
                 <div className="w-full md:w-1/2">
                     <MemberCardButton allRefresh={refresh}/>
                 </div>
-
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* ⭐⭐⭐ 放置十连抽组件的位置 ⭐⭐⭐ */}
+            {/* 放在这里非常醒目，引导用户在看完积分后进行大额抽奖 */}
+            <div className="w-full max-w-6xl px-4 mb-8">
+                <DrawTenButton handleRefresh={handleRefresh} />
+            </div>
+
+            {/* 规则权重进度条 */}
+            <div className="flex items-center space-x-4 mb-6">
                 <StrategyRuleWeightButton refresh={refresh}/>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* 跑马灯 */}
+            <div className="flex items-center space-x-4 w-full max-w-4xl">
                 <RaffleMarquee activityId={100401}/>
             </div>
 
-            {/* 装配抽奖 */}
-            <StrategyArmoryButton/>
+            {/* 装配抽奖 (仅供测试或管理员使用?) */}
+            <div className="mt-8 opacity-50 hover:opacity-100 transition-opacity">
+                <StrategyArmoryButton/>
+            </div>
 
-            {/* 底部文案 */}
-            <footer className="text-gray-600 text-center my-8" style={{color: "white"}}>
-
+            <footer className="text-gray-300 text-center my-8 text-sm">
+                Credit Market Raffle Platform ©gzc 2025-12
             </footer>
         </div>
     );
