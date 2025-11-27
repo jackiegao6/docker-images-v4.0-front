@@ -67,6 +67,32 @@ export const draw = (userId?: string, activityId?: number) => {
 }
 
 /**
+ * 抽奖接口
+ * @param userId 用户ID
+ * @param activityId 用户ID
+ */
+export const drawTen = (userId?: string, activityId?: number) => {
+    try {
+        return fetch(`${apiHostUrl}/api/v1/raffle/activity/drawTen`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                activityId: activityId
+            })
+        })
+    } catch (error) {
+        return fetch("{\n" +
+            "    \"code\": \"0001\",\n" +
+            "    \"info\": \"调用失败\",\n" +
+            "    \"data\": [\n" +
+            "}");
+    }
+}
+
+/**
  * 查询账户额度
  * @param userId        用户ID
  * @param activityId    活动ID
