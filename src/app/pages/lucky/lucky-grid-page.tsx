@@ -108,39 +108,30 @@ export function LuckyGridPage({ handleRefresh }: LuckyGridPageProps) {
     // 2. 抽奖逻辑
     const handleStartGame = async () => {
         if (!myLucky.current) return;
-
-        // 开始转动
         myLucky.current.play();
 
         const { userId, activityId } = getParams();
 
         try {
-            // ✅ 立即请求，不使用 setTimeout 延迟请求，减少用户等待
-            // LuckyGrid 内部机制会保证至少转够一定时间才停
             let result = await draw(userId, activityId);
             const { code, info, data } = await result.json();
 
-            if (!isMounted.current) return;
-
             if (code !== "0000") {
                 window.alert(`抽奖失败: ${info}`);
-                myLucky.current.stop(); // 🔴 即使失败，也要调用 stop 让转盘停下来
+                myLucky.current.stop();
                 return;
             }
 
-            // ✅ 计算索引 (后端返回 1-8，前端需要 0-7)
+            // ❌ 不要在这里调用 handleRefresh()！
+            // ❌ handleRefresh();
+            // 如果在这里调用，可能因为数据库还没落库，查回来的还是旧的次数
+
             const prizeIndex = data.awardIndex - 1;
-
-            // 调用 stop 停止在指定位置
             myLucky.current.stop(prizeIndex);
-
-            // 此时可以刷新次数，或者等到 onEnd 再刷新
-            handleRefresh();
 
         } catch (error) {
             console.error("抽奖接口异常", error);
-            window.alert("网络异常，请重试");
-            if (myLucky.current) myLucky.current.stop(); // 🔴 异常停止
+            myLucky.current.stop();
         }
     };
 
@@ -167,10 +158,10 @@ export function LuckyGridPage({ handleRefresh }: LuckyGridPageProps) {
             buttons={buttons}
             onStart={handleStartGame}
             onEnd={(prize: any) => {
-                // 动画完全结束后的回调
-                // 1. 刷新奖品锁定状态
-                fetchAwardList();
-                // 2. 提示用户
+                // ✅ 必须在这里调用刷新！
+                // 此时距离 API 调用已经过去了几秒钟，数据库肯定更新完了
+                handleRefresh();
+
                 alert('恭喜抽中奖品💐【' + prize.fonts[0].text + '】');
             }}
         />
