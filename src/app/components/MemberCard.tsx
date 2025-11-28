@@ -9,21 +9,30 @@ import {
     queryUserCreditAccount,
 } from "@/apis";
 
-// ... Clock 组件保持不变 ...
-const Clock: React.FC = React.memo(() => {
+const Clock: React.FC = React.memo(function ClockComponent() {
     const [now, setNow] = useState<string>("");
+
     useEffect(() => {
-        // ... 保持原有逻辑
         const updateTime = () => {
             const d = new Date();
-            setNow(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`);
+            setNow(
+                `${String(d.getHours()).padStart(2, "0")}:${String(
+                    d.getMinutes()
+                ).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`
+            );
         };
         updateTime();
         const timer = setInterval(updateTime, 1000);
         return () => clearInterval(timer);
     }, []);
-    return <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">{now}</span>;
+
+    return (
+        <span className="font-bold text-gray-100 ml-1 bg-red-300 bg-opacity-20 rounded-full px-2 py-1">
+            {now}
+        </span>
+    );
 });
+
 
 interface MemberCardProps {
     allRefresh?: number;
