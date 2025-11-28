@@ -95,7 +95,7 @@ export const DrawTenComponent: React.FC<DrawTenProps> = ({ handleRefresh }) => {
         正在祈福...
         </span>
     ) : (
-        "🔥 豪气十连抽 🔥"
+        "🔥 暴走十连抽 🔥"
     )}
 
     {/* 装饰性光效 */}
