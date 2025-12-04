@@ -4,6 +4,7 @@ import {LuckyGridPage} from "@/app/pages/lucky/lucky-grid-page";
 import dynamic from "next/dynamic";
 import {useState} from "react";
 import RaffleMarquee from "@/app/components/RaffleMarquee";
+import {useSearchParams} from "next/navigation";
 
 // 1. 引入新组件 (使用 dynamic 动态加载)
 const StrategyArmoryButton = dynamic(async () => (await import("./components/StrategyArmory")).StrategyArmory)
@@ -20,6 +21,10 @@ export default function Home() {
     const handleRefresh = () => {
         setRefresh(refresh + 1)
     };
+
+    const searchParams = useSearchParams();
+    const activityId = Number(searchParams.get("activityId")) || 0;
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#1472c7]"
@@ -61,7 +66,7 @@ export default function Home() {
 
             {/* 跑马灯 */}
             <div className="flex items-center space-x-4 w-full max-w-4xl">
-                <RaffleMarquee activityId={100401}/>
+                <RaffleMarquee activityId={activityId}/>
             </div>
 
             {/* 装配抽奖 (仅供测试或管理员使用?) */}
